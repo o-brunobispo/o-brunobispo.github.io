@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Studio | Minimalist Portfolio</title>
+    <style>
+        /* --- RESET & VARIÁVEIS BASE --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #0a0a0a;
+            --bg-light: #f4f4f4;
+            --text-dark: #111111;
+            --text-light: #ffffff;
+            --text-muted: #888888;
+            --font-sans: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            --transition: cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            font-family: var(--font-sans);
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- BARRA DE NAVEGAÇÃO --- */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2rem 4rem;
+            z-index: 1000;
+            transition: all 0.5s var(--transition);
+        }
+
+        .navbar.scrolled {
+            padding: 1.2rem 4rem;
+            background: rgba(10, 10, 10, 0.9);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--text-light);
+            cursor: pointer;
+            z-index: 1001;
+            width: 70px;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2.5rem;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 400;
+            opacity: 0.6;
+            transition: opacity 0.3s ease;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .nav-btn:hover, 
+        .nav-btn.active {
+            opacity: 1;
+        }
+
+        /* --- MENU HAMBÚRGUER --- */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 28px;
+            height: 18px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        .menu-toggle span {
+            width: 100%;
+            height: 2px;
+            background-color: var(--text-light);
+            transition: all 0.4s var(--transition);
+        }
+
+        .menu-toggle.active span:nth-child(1) {
+            transform: translateY(8px) rotate(45deg);
+        }
+        .menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+        .menu-toggle.active span:nth-child(3) {
+            transform: translateY(-8px) rotate(-45deg);
+        }
+
+        /* --- CONTÊINER PRINCIPAL DE SCROLL --- */
+        .main-wrapper {
+            width: 100%;
+            height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+            position: relative;
+        }
+
+        /* --- ESTRUTURA DAS SEÇÕES (SEM ERRO DE EMPILHAMENTO 3D) --- */
+        section {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8rem 10% 6rem 10%;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-attachment: fixed; /* Efeito Parallax Nativo e Seguro */
+            overflow: hidden;
+        }
+
+        /* Overlay escuro para garantir legibilidade dos textos sobre imagens */
+        section.has-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1;
+        }
+
+        /* Imagens de fundo aplicadas diretamente na seção */
+        #home {
+            background-image: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=80');
+        }
+
+        #journal {
+            background-image: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1920&q=80');
+        }
+
+        /* Seções Claras sem Imagem */
+        .light-section {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        .light-section p {
+            color: #555555;
+        }
+
+        /* --- CONTEÚDO --- */
+        .content {
+            position: relative;
+            z-index: 2; /* Garante que o texto fique SEMPRE acima do fundo */
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1, h2 {
+            font-size: clamp(2.2rem, 5vw, 3.8rem);
+            font-weight: 300;
+            letter-spacing: -1px;
+            margin-bottom: 1.5rem;
+            line-height: 1.15;
+        }
+
+        p {
+            font-size: clamp(0.95rem, 1.5vw, 1.15rem);
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto 2rem auto;
+            font-weight: 300;
+        }
+
+        .has-bg p {
+            color: #cccccc;
+        }
+
+        /* --- PORTFÓLIO & MÍDIA --- */
+        .media-container {
+            width: 100%;
+            max-width: 1100px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .media-box {
+            position: relative;
+            overflow: hidden;
+            height: 350px;
+            background: #111;
+            border-radius: 2px;
+        }
+
+        .media-box img, .media-box video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.8s var(--transition);
+            opacity: 0.8;
+        }
+
+        .media-box:hover img, .media-box:hover video {
+            transform: scale(1.05);
+            opacity: 1;
+        }
+
+        /* --- CONTATO --- */
+        .contact-form {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+            padding: 1rem 0;
+            color: var(--text-dark);
+            font-family: var(--font-sans);
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            border-bottom-color: var(--text-dark);
+        }
+
+        .submit-btn {
+            background: var(--text-dark);
+            color: var(--text-light);
+            border: none;
+            padding: 1rem 2.5rem;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: opacity 0.3s ease;
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* --- RESPONSIVIDADE --- */
+        @media (max-width: 900px) {
+            .navbar {
+                padding: 1.5rem 2rem;
+            }
+            .navbar.scrolled {
+                padding: 1.2rem 2rem;
+            }
+
+            .menu-toggle {
+                display: flex;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100vh;
+                background-color: var(--bg-dark);
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                gap: 2rem;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.4s var(--transition);
+                z-index: 1000;
+            }
+
+            .nav-links.active {
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+            .nav-btn {
+                font-size: 1.2rem;
+                letter-spacing: 3px;
+            }
+
+            section {
+                padding: 7rem 6% 4rem 6%;
+                /* iOS Safari desativa 'fixed', essa linha garante comportamento normal no iPhone */
+                background-attachment: scroll;
+            }
+
+            .media-container {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .media-box {
+                height: 260px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- BARRA DE NAVEGAÇÃO -->
+    <nav class="navbar">
+     <!--   <span onclick="scrollToSection('home')" class="logo">STUDIO.</span>
+       --> <img class="logo"src="https://lh3.googleusercontent.com/sitesv/AA5AbUCyYnYKv6rFFobUbJI9gF8UipzY9iVPmY2DOeD0jQdSllYannUFiDPSYJshSY_Zl7rndEeOpzVIa6pi_i-LoFUxhBuwk99XKh_WUhcJW8Ypvt_0FNDQjW-j638nWFlq-ooxFttkaiH-AjuwnlrkGWuanbpomW00OPBJ61cxF6KXZdiAPGRXxUOsoZYXskScGN_YjkyuHpO9GhhRbdHFcCMGD537-oi7Uql_3SjdybM=w1280"
+         alt="" srcset="">
+        
+        <button class="menu-toggle" id="menu-toggle" aria-label="Abrir Menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+        <ul class="nav-links" id="nav-links">
+            <li><button class="nav-btn active" onclick="scrollToSection('home')">Home</button></li>
+            <li><button class="nav-btn" onclick="scrollToSection('about')">Sobre</button></li>
+            <li><button class="nav-btn" onclick="scrollToSection('portfolio')">Portfólio</button></li>
+            <li><button class="nav-btn" onclick="scrollToSection('services')">Serviços</button></li>
+            <li><button class="nav-btn" onclick="scrollToSection('journal')">Journal</button></li>
+            <li><button class="nav-btn" onclick="scrollToSection('contact')">Contato</button></li>
+        </ul>
+    </nav>
+
+    <!-- CONTAINER DE SCROLL PRINCIPAL -->
+    <div class="main-wrapper" id="main-wrapper">
+
+        <!-- 1. HOME -->
+        <section id="home" class="has-bg">
+            <div class="content">
+                <h1>Minimalismo &amp; Propósito</h1>
+                <p>Criamos experiências digitais sofisticadas voltadas para marcas contemporâneas através de design limpo e direção de arte sob medida.</p>
+            </div>
+        </section>
+
+        <!-- 2. SOBRE -->
+        <section id="about" class="light-section">
+            <div class="content">
+                <h2>A Estética do Silêncio</h2>
+                <p>Acreditamos que o design sofisticado não grita; ele se faz notar pela ausência de excessos. Nosso processo elimina o ruído visual para dar espaço ao que realmente importa.</p>
+            </div>
+        </section>
+
+        <!-- 3. PORTFÓLIO -->
+        <section id="portfolio">
+            <div class="content" style="max-width: 100%;">
+                <h2>Projetos Selecionados</h2>
+                <p>Concepções visuais, fotografia de produto e interfaces minimalistas.</p>
+                
+                <div class="media-container">
+                    <div class="media-box">
+                        <img src="https://images.unsplash.com/photo-1509343256512-d77a5cb3791b?auto=format&fit=crop&w=800&q=80" alt="Branding">
+                    </div>
+                    <div class="media-box">
+                        <video autoplay loop muted playsinline>
+                            <source src="https://assets.mixkit.co/videos/preview/mixkit-abstract-laser-lights-background-41764-large.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. SERVIÇOS -->
+        <section id="services" class="light-section">
+            <div class="content">
+                <h2>Nossa Abordagem</h2>
+                <p>Direção de Arte, Identidade Visual, UX/UI Sólido, Desenvolvimento Web e Editorial Premium.</p>
+            </div>
+        </section>
+
+        <!-- 5. JOURNAL -->
+        <section id="journal" class="has-bg">
+            <div class="content">
+                <h2>O Pensamento Crítico</h2>
+                <p>Ensaios visuais semanais sobre arquitetura brutalista, tipografia moderna e o futuro do design conceitual.</p>
+            </div>
+        </section>
+
+        <!-- 6. CONTATO -->
+        <section id="contact" class="light-section">
+            <div class="content">
+                <h2>Vamos Iniciar?</h2>
+                <p>Se você valoriza o minimalismo técnico e quer elevar o patamar estético do seu negócio, escreva para nós.</p>
+                
+                <form class="contact-form" onsubmit="event.preventDefault(); alert('Mensagem enviada com sucesso!');">
+                    <div class="form-group">
+                        <input type="text" placeholder="SEU NOME" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" placeholder="SEU E-MAIL" required>
+                    </div>
+                    <div class="form-group">
+                        <textarea placeholder="FALE SOBRE O PROJETO" rows="4" required style="resize: none;"></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">Enviar Mensagem</button>
+                </form>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        const wrapper = document.getElementById('main-wrapper');
+        const menuToggle = document.getElementById('menu-toggle');
+        const navLinksContainer = document.getElementById('nav-links');
+
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            navLinksContainer.classList.toggle('active');
+        });
+
+        function scrollToSection(id) {
+            menuToggle.classList.remove('active');
+            navLinksContainer.classList.remove('active');
+
+            const targetSection = document.getElementById(id);
+            if (targetSection) {
+                targetSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        const sections = document.querySelectorAll('section');
+        const navBtns = document.querySelectorAll('.nav-btn');
+
+        const observerOptions = {
+            root: wrapper,
+            threshold: 0.3
+        };
+
+        const sectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) {
+                    const id = entry.target.getAttribute('id');
+                    navBtns.forEach((btn) => {
+                        btn.classList.remove('active');
+                        if (btn.getAttribute('onclick').includes(id)) {
+                            btn.classList.add('active');
+                        }
+                    });
+                }
+            });
+        }, observerOptions);
+
+        sections.forEach(section => {
+            sectionObserver.observe(section);
+        });
+
+        const navbar = document.querySelector('.navbar');
+        wrapper.addEventListener('scroll', () => {
+            if (wrapper.scrollTop > 80) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+    </script>
+</body>
+</html>
